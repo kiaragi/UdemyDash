@@ -20,14 +20,14 @@ app.layout = html.Div([
     dcc.Graph(
         id='sample-scatter',
         figure={
-            'data':[
+            'data': [
                 go.Scatter(
                     x=x1,
                     y=y1,
                     mode='markers',
                     opacity=0.7,
                     marker={
-                        'size':15
+                        'size': 15
                     },
                     name='グループ１'
                 ),
@@ -37,23 +37,21 @@ app.layout = html.Div([
                     mode='markers',
                     opacity=0.7,
                     marker={
-                        'size':15,
-                        #'color': 'red'
+                        'size': 15,
+                        # 'color': 'red'
                     },
                     name='グループ２'
                 )
             ],
-            'layout':go.Layout(
-                xaxis={'title':'x軸'},
-                yaxis={'title':'y軸'}
+            'layout': go.Layout(
+                xaxis={'title': 'x軸'},
+                yaxis={'title': 'y軸'}
             )
         }
 
     )
 
 ])
-
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
