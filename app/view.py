@@ -3,22 +3,26 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import pandas as pd
-from datetime import datetime
+
+from assets.database import db_session
+from assets.models import Data
+
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-# 可視化するデータの取得
-df = pd.read_csv("assets/data.csv")
+data = db_session.query(Data.date, Data.subscribers, Data.reviews).all()
 
 dates = []
-for _date in df['date']:
-    dates.append(datetime.strptime(_date, '%Y/%m/%d').date())
+subscribers = []
+reviews = []
 
-n_subscribers = df['subscribers'].values
-n_reviews = df['reviews'].values
+for datum in data:
+    dates.append(datum.date)
+    subscribers.append(datum.subscribers)
+    reviews.append(datum.reviews)
 
-dif_subscribers = df['subscribers'].diff().values
-dif_reviews = df['reviews'].diff().values
+dif_subscribers = pd.Series(subscribers).diff().values
+dif_reviews = pd.Series(reviews).diff().values
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -32,7 +36,7 @@ app.layout = html.Div(children=[
                 'data': [
                     go.Scatter(
                         x=dates,
-                        y=n_subscribers,
+                        y=subscribers,
                         mode='lines+markers',
                         name='受講生総数',
                         opacity=0.7,
@@ -49,7 +53,7 @@ app.layout = html.Div(children=[
                     title='受講生総数の推移',
                     xaxis=dict(title='date'),
                     yaxis=dict(title='受講生総数', side='left', showgrid=True,
-                               range=[min(n_subscribers) - 500, max(n_subscribers) + 500]),
+                               range=[min(subscribers) - 500, max(subscribers) + 500]),
                     yaxis2=dict(title='増加人数', side='right', showgrid=False,
                                 range=[0, max(dif_subscribers[1:]) + 20], overlaying='y'),
                     margin=dict(l=200, r=200, b=100, t=100)
@@ -64,7 +68,7 @@ app.layout = html.Div(children=[
                 'data': [
                     go.Scatter(
                         x=dates,
-                        y=n_reviews,
+                        y=reviews,
                         mode='lines+markers',
                         name='レビュー総数',
                         opacity=0.7,
@@ -81,7 +85,7 @@ app.layout = html.Div(children=[
                     title='レビュー総数の推移',
                     xaxis=dict(title='date'),
                     yaxis=dict(title='レビュー総数', side='left', showgrid=True,
-                               range=[0, max(n_reviews) + 500]),
+                               range=[0, max(reviews) + 500]),
                     yaxis2=dict(title='増加人数', side='right', showgrid=False,
                                 range=[0, max(dif_reviews[1:]) + 20], overlaying='y'),
                 )
